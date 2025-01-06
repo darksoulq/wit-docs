@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE rules SYSTEM "https://resources.jetbrains.com/writerside/1.0/redirection-rules.dtd">
+<rules>
+    <!-- format is as follows
+    <rule id="<unique id>">
+        <accepts>page.html</accepts>
+    </rule>
+    -->
+    <rule id="5c65122">
+        <description>Created after removal of "Starter" from WIT</description>
+        <accepts>starter.html</accepts>
+    </rule>
+    <rule id="2449e62">
+        <description>Created after removal of "Default Handlers" from WIT</description>
+        <accepts>Default-Handlers.html</accepts>
+    </rule>
+    <rule id="672a9655">
+        <description>Created after removal of "Block Handlers" from WIT</description>
+        <accepts>Block-Handlers.html</accepts>
+    </rule>
+    <rule id="58d76a01">
+        <description>Created after removal of "Entity Handlers" from WIT</description>
+        <accepts>Entity-Handlers.html</accepts>
+    </rule>
+</rules>
