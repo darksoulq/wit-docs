@@ -3,20 +3,20 @@
 <tabs xmlns="">
 <tab title="Block Handlers">
 <code-block lang="Java">
-LiteFarmCompat::handleLitefarmCrop
-MinetorioCompat::handleMTDisplay
-ItemsAdderCompat::handleIABlocks
-SlimefunCompat::handleSlimefunMachines
-NexoCompat::handleNexoBlock
+LiteFarmCompat::handleBlock
+MinetorioCompat::handleBlock
+ItemsAdderCompat::handleBlock
+SlimefunCompat::handleBlock
+NexoCompat::handleBlock
 </code-block>
 </tab>
 <tab title="Entity Handlers">
 <code-block lang="Java">
-ValhallaMMOCompat::handleVMMOEntity
-ItemsAdderCompat::handleIAEntity
-EliteMobsCompat::handleEMEntity
-AuraMobsCompat::handleAuraMobs
-NexoCompat::handleNexoEntity
+ValhallaMMOCompat::handleEntity
+ItemsAdderCompat::handleEntity
+EliteMobsCompat::handleEntity
+AuraMobsCompat::handleEntity
+NexoCompat::handleEntity
 </code-block>
 </tab>
 </tabs>

@@ -1,35 +1,55 @@
 package me.darksoul.whatIsThat.compatibility;
 
+import com.MT.xxxtrigger50xxx.API.MTAPI;
 import com.MT.xxxtrigger50xxx.Devices.Device;
 import com.MT.xxxtrigger50xxx.Devices.Mover;
 import me.darksoul.whatIsThat.Information;
 import me.darksoul.whatIsThat.WAILAListener;
-import me.darksoul.whatIsThat.WAILAManager;
+import me.darksoul.whatIsThat.display.WAILAManager;
 import me.darksoul.whatIsThat.WhatIsThat;
-import me.darksoul.whatIsThat.misc.ConfigUtils;
 import org.bukkit.block.Block;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Function;
 
 public class MinetorioCompat {
-    private static boolean isMTInstalled;
+    private static boolean isInstalled;
+    private static final List<Function<Block, String>> prefixBlock = new ArrayList<>();
+    private static final List<Function<Block, String>> suffixBlock = new ArrayList<>();
 
-    public static boolean checkMT() {
+    public static void setup() {
+        prefixBlock.clear();
+        suffixBlock.clear();
+        if (WAILAListener.getConfig().getBoolean("minetorio.containerinfo", true)) {
+            prefixBlock.add(Information::default_getTotalItemsInContainer);
+        }
+        if (WAILAListener.getConfig().getBoolean("minetorio.powerinfo", true)) {
+            suffixBlock.add(Information::minetorio_getPower);
+        }
+        if (WAILAListener.getConfig().getBoolean("minetorio.smeltinfo", true)) {
+            suffixBlock.add(Information::default_getRemainingSmeltTime);
+        }
+    }
+
+    public static void hook() {
         Plugin pl = WhatIsThat.getInstance().getServer().getPluginManager().getPlugin("Minetorio");
-        return pl != null && pl.isEnabled();
+        isInstalled = pl != null && pl.isEnabled();
+        if (isInstalled) {
+            setup();
+            WhatIsThat.getInstance().getLogger().info("Hooked into Minetorio");
+        } else {
+            WhatIsThat.getInstance().getLogger().info("Minetorio not found, skipping hook");
+        }
     }
-    public static boolean getIsMTInstalled() {
-        return MinetorioCompat.isMTInstalled;
-    }
-    public static void setIsMTInstalled(boolean isMTInstalled) {
-        MinetorioCompat.isMTInstalled = isMTInstalled;
+    public static boolean getIsInstalled() {
+        return MinetorioCompat.isInstalled;
     }
 
-    public static boolean handleMTDisplay(Block block, Player player) {
-        Device device = Device.getDevice(block.getLocation());
+    public static boolean handleBlock(Block block, Player player) {
+        Device device = MTAPI.getDevice(block.getLocation());
         Mover mover = Mover.getMover(block.getLocation());
         String deviceName;
         if (device != null || mover != null) {
@@ -41,21 +61,24 @@ public class MinetorioCompat {
             StringBuilder MTBlockSInfo = new StringBuilder();
             StringBuilder MTBlockPInfo = new StringBuilder();
             StringBuilder info = new StringBuilder();
-            for (Function<Block, String> func : Information.getSuffixMTBlocks()) {
+            for (Function<Block, String> func : suffixBlock) {
                 MTBlockSInfo.append(func.apply(block));
             }
-            for (Function<Block, String> func : Information.getPrefixMTBlocks()) {
+            for (Function<Block, String> func : prefixBlock) {
                 MTBlockPInfo.append(func.apply(block));
             }
             if (!MTBlockPInfo.isEmpty()) {
-                info.append(MTBlockPInfo).append(" §f| ");
+                info.append(MTBlockPInfo).append(Information.getValuesFile().getString("SPLITTER", " §f| "));
             }
             info.append(deviceName);
             if (!MTBlockSInfo.isEmpty()) {
-                info.append(" §f| ").append(MTBlockSInfo);
+                info.append(Information.getValuesFile().getString("SPLITTER", " §f| ")).append(MTBlockSInfo);
             }
-            WAILAManager.setBar(player, WAILAListener.getPlayerConfig(player).getString("type"),
-                    info.toString());
+            WAILAListener.setLookingAt(player, deviceName);
+            WAILAListener.setLookingAtPrefix(player, MTBlockPInfo.toString());
+            WAILAListener.setLookingAtSuffix(player, MTBlockSInfo.toString());
+            WAILAListener.setLookingAtInfo(player, info.toString());
+            WAILAManager.setBar(player, info.toString());
             return true;
         }
         return false;

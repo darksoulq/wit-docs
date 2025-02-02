@@ -6,8 +6,14 @@
                  name="WIT"
                   start-page="api.md">
 
-    <toc-element topic="api.md"/>
-    <toc-element topic="Block-Handlers.md"/>
-    <toc-element topic="Entity-Handlers.md"/>
-    <toc-element topic="Default-Handlers.md"/>
+    <toc-element topic="api.md">
+        <toc-element topic="Entity-Handlers.md"/>
+        <toc-element topic="Block-Handlers.md"/>
+        <toc-element topic="Default-Handlers.md"/>
+        <toc-element topic="Displays.md"/>
+    </toc-element>
+    <toc-element topic="User.md">
+        <toc-element topic="Placeholders.md"/>
+        <toc-element topic="Commands.md"/>
+    </toc-element>
 </instance-profile>
