@@ -1,65 +1,18 @@
-package me.darksoul.whatIsThat.compatibility;
-
-import com.magmaguy.elitemobs.entitytracker.EntityTracker;
-import com.magmaguy.elitemobs.mobconstructor.EliteEntity;
-import me.darksoul.whatIsThat.Information;
-import me.darksoul.whatIsThat.WAILAListener;
-import me.darksoul.whatIsThat.display.WAILAManager;
-import me.darksoul.whatIsThat.WhatIsThat;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Function;
-
-public class EliteMobsCompat {
-    private static final List<Function<EliteEntity, String>> suffixEntity = new ArrayList<>();
-    private static boolean isInstalled;
-
-    public static void setup() {
-        suffixEntity.clear();
-        if (WAILAListener.getConfig().getBoolean("elitemobs.healthinfo", true)) {
-            suffixEntity.add(Information::eliteMobs_getHealth);
-        }
-    }
-    public static void hook() {
-        Plugin pl = WhatIsThat.getInstance().getServer().getPluginManager().getPlugin("EliteMobs");
-        isInstalled = pl != null && pl.isEnabled();
-        if (isInstalled) {
-            setup();
-            WhatIsThat.getInstance().getLogger().info("Hooked into EliteMobs");
-        } else {
-            WhatIsThat.getInstance().getLogger().info("EliteMobs not found, skipping hook");
-        }
-    }
-    public static boolean getIsInstalled() {
-        return isInstalled;
-    }
-
-    public static boolean handleEntity(Entity entity, Player player) {
-        EliteEntity eliteEntity = EntityTracker.getEliteMobEntity(entity);
-        if (eliteEntity != null) {
-            String name = eliteEntity.getName();
-            StringBuilder EMEntitySInfo = new StringBuilder();
-            String EMEntityPInfo = "";
-            StringBuilder info = new StringBuilder();
-            for (Function<EliteEntity, String> func : suffixEntity) {
-                EMEntitySInfo.append(func.apply(eliteEntity));
+public static boolean handleEntity(Entity entity, Player player) {
+    if (MTAPI.isBiter(entity)) {
+        Info info = new Info();
+        info.setName(Component.text("Biter"));
+        float health = 0;
+        if (WITMinetorio.CONFIG.getBoolean("biter-health-progress")) {
+            if (entity instanceof LivingEntity) {
+                health = (float) Math.max(0f, Math.min(1f, ((LivingEntity) entity).getHealth() /
+                        ((LivingEntity) entity).getAttribute(Attribute.MAX_HEALTH).getValue()));
             }
-            info.append(EMEntityPInfo).append(name);
-            if (!EMEntitySInfo.isEmpty()) {
-                info.append(Information.getValuesFile().getString("SPLITTER", " §f| "))
-                        .append(EMEntitySInfo);
-            }
-            WAILAListener.setLookingAt(player, name);
-            WAILAListener.setLookingAtPrefix(player, EMEntityPInfo);
-            WAILAListener.setLookingAtSuffix(player, EMEntitySInfo.toString());
-            WAILAListener.setLookingAtInfo(player, info.toString());
-            WAILAManager.setBar(player, info.toString());
-            return true;
         }
-        return false;
+        for (Function<Entity, Component> func : suffixEntity) {
+            info.addSuffix(func.apply(entity));
+        }
+        API.updateBar(info, 1 - health, player);
     }
+    return false;
 }

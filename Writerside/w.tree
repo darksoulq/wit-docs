@@ -7,8 +7,9 @@
                   start-page="api.md">
 
     <toc-element topic="api.md">
-        <toc-element topic="Entity-Handlers.md"/>
+        <toc-element topic="WITPlugin.md"/>
         <toc-element topic="Block-Handlers.md"/>
+        <toc-element topic="Entity-Handlers.md"/>
         <toc-element topic="Default-Handlers.md"/>
         <toc-element topic="Displays.md"/>
     </toc-element>

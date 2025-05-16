@@ -11,7 +11,7 @@ private static boolean handleMyBlock(Block block, Player player) {
     if (/* your condition */) {
         // Add your logic
         WITAPI.updateBar(yourInfo, player); 
-        // `yourInfo` is the string shown on the boss bar.
+        // `yourInfo` is the Info shown on the boss bar.
         // `player` is the one received by the handler from the plugin.
 
         return true; // Block successfully handled
