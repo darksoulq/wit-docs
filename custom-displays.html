@@ -1,0 +1,75 @@
+<!DOCTYPE html SYSTEM "about:legacy-compat">
+<html lang="en-US" data-preset="contrast" data-primary-color="#DE3358" data-link-color="#647A89" data-resizable-sidebar="true"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta charset="UTF-8"><meta name="robots" content="noindex"><meta name="built-on" content="2026-05-31T15:03:33.5468115"><title>Custom Displays | WIT</title><script type="application/json" id="virtual-toc-data">[{"id":"creating-a-custom-display","level":0,"title":"Creating a Custom Display","anchor":"#creating-a-custom-display"},{"id":"registering-the-display","level":0,"title":"Registering the Display","anchor":"#registering-the-display"},{"id":"default-displays","level":0,"title":"Default Displays","anchor":"#default-displays"}]</script><script type="application/json" id="topic-shortcuts"></script><link href="https://resources.jetbrains.com/writerside/apidoc/6.26.0-b913/app.css" rel="stylesheet"><meta name="msapplication-TileColor" content="#000000"><link rel="apple-touch-icon" sizes="180x180" href="https://jetbrains.com/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="https://jetbrains.com/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="https://jetbrains.com/favicon-16x16.png"><meta name="msapplication-TileImage" content="https://resources.jetbrains.com/storage/ui/favicons/mstile-144x144.png"><meta name="msapplication-square70x70logo" content="https://resources.jetbrains.com/storage/ui/favicons/mstile-70x70.png"><meta name="msapplication-square150x150logo" content="https://resources.jetbrains.com/storage/ui/favicons/mstile-150x150.png"><meta name="msapplication-wide310x150logo" content="https://resources.jetbrains.com/storage/ui/favicons/mstile-310x150.png"><meta name="msapplication-square310x310logo" content="https://resources.jetbrains.com/storage/ui/favicons/mstile-310x310.png"><meta name="image" content=""><!-- Open Graph --><meta property="og:title" content="Custom Displays | WIT"><meta property="og:description" content=""><meta property="og:image" content=""><meta property="og:site_name" content="WIT Help"><meta property="og:type" content="website"><meta property="og:locale" content="en_US"><meta property="og:url" content="writerside-documentation/custom-displays.html"><!-- End Open Graph --><!-- Twitter Card --><meta name="twitter:card" content="summary_large_image"><meta name="twitter:site" content=""><meta name="twitter:title" content="Custom Displays | WIT"><meta name="twitter:description" content=""><meta name="twitter:creator" content=""><meta name="twitter:image:src" content=""><!-- End Twitter Card --><!-- Schema.org WebPage --><script type="application/ld+json">{
+    "@context": "http://schema.org",
+    "@type": "WebPage",
+    "@id": "writerside-documentation/custom-displays.html#webpage",
+    "url": "writerside-documentation/custom-displays.html",
+    "name": "Custom Displays | WIT",
+    "description": "",
+    "image": "",
+    "inLanguage":"en-US"
+}</script><!-- End Schema.org --><!-- Schema.org WebSite --><script type="application/ld+json">{
+    "@type": "WebSite",
+    "@id": "writerside-documentation/#website",
+    "url": "writerside-documentation/",
+    "name": "WIT Help"
+}</script><!-- End Schema.org --></head><body data-id="custom-displays" data-main-title="Custom Displays" data-article-props="{&quot;seeAlsoStyle&quot;:&quot;links&quot;}" data-template="article" data-breadcrumbs=""><div class="wrapper"><main class="panel _main"><header class="panel__header"><div class="container"><h3>WIT  Help</h3><div class="panel-trigger"></div></div></header><section class="panel__content"><div class="container"><article class="article" data-shortcut-switcher="inactive"><h1 data-toc="custom-displays" id="custom-displays.md">Custom Displays</h1><p id="z5rwsds_4">By default, WIT provides a BossBar and an ActionBar to display information to the player. However, you can create entirely custom displays (such as titles, scoreboards, or chat messages) by extending the <code class="code" id="z5rwsds_8">InfoDisplay</code> class and registering it.</p><section class="chapter"><h2 id="creating-a-custom-display" data-toc="creating-a-custom-display">Creating a Custom Display</h2><p id="z5rwsds_9">To create a custom display, you must extend <code class="code" id="z5rwsds_12">InfoDisplay</code> and provide a unique string ID in the constructor. You must then implement the methods that WIT calls when a player looks at a block or entity.</p><p id="z5rwsds_10">Here is an example of a custom display that sends a Title to the player's screen:</p><div class="code-block" data-lang="java">
+import com.github.darksoulq.wit.api.Info;
+import com.github.darksoulq.wit.display.InfoDisplay;
+import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.title.Title;
+import org.bukkit.entity.Player;
+import java.time.Duration;
+
+public class TitleDisplay extends InfoDisplay {
+
+    public TitleDisplay() {
+        // The ID players will use in `/wit type &lt;id&gt;`
+        super(&quot;title&quot;); 
+    }
+
+    @Override
+    public void setBar(Player player, Info info) {
+        if (info == null || info.getName() == null) {
+            removeBar(player);
+            return;
+        }
+
+        // Show the name as the main title, and prefix/suffix as the subtitle
+        Title title = Title.title(
+            info.getName(),
+            info.getPrefix().append(info.getSuffix()),
+            Title.Times.times(Duration.ZERO, Duration.ofSeconds(2), Duration.ofSeconds(1))
+        );
+
+        player.showTitle(title);
+    }
+
+    @Override
+    public void setProgress(Player player, float value) {
+        // Titles don't naturally support progress bars, so we leave this empty.
+        // If you were building a Scoreboard display, you would update the score here.
+    }
+
+    @Override
+    public void setColor(Player player, TextColor color) {
+        // We handle colors directly in the Info components, so this can be ignored.
+    }
+
+    @Override
+    public void removeBar(Player player) {
+        player.clearTitle();
+    }
+
+    @Override
+    public boolean isEmpty(Player player) {
+        return false;
+    }
+}
+</div></section><section class="chapter"><h2 id="registering-the-display" data-toc="registering-the-display">Registering the Display</h2><p id="z5rwsds_13">Register your custom display during your addon's startup using <code class="code" id="z5rwsds_17">API.addDisplay()</code>. Remember to register this inside your <code class="code" id="z5rwsds_18">onWITReload()</code> method as well!</p><div class="code-block" data-lang="java">
+import com.github.darksoulq.wit.api.API;
+
+public void registerDisplays() {
+    API.addDisplay(new TitleDisplay());
+}
+</div><p id="z5rwsds_15">Players can now switch to your custom display in-game by typing <code class="code" id="z5rwsds_19">/wit type title</code>.</p></section><section class="chapter"><h2 id="default-displays" data-toc="default-displays">Default Displays</h2><p id="z5rwsds_21">WIT ships with two built-in display types that handle the <code class="code" id="z5rwsds_24">Info</code> object, colors, and progress floats differently.</p><section class="chapter"><h3 id="bossbar-bossbar" data-toc="bossbar-bossbar">BossBar (<code class="code" id="z5rwsds_27">bossbar</code>)</h3><ul class="list _bullet" id="z5rwsds_26"><li class="list__item" id="z5rwsds_28"><p id="z5rwsds_31"><span class="control" id="z5rwsds_32">Text:</span> Renders the <code class="code" id="z5rwsds_33">getCombined()</code> component (Prefix + Name + Suffix) as the title of the boss bar.</p></li><li class="list__item" id="z5rwsds_29"><p id="z5rwsds_34"><span class="control" id="z5rwsds_35">Progress:</span> Visually fills or depletes the boss bar.</p></li><li class="list__item" id="z5rwsds_30"><p id="z5rwsds_36"><span class="control" id="z5rwsds_37">Color:</span> Maps standard Adventure <code class="code" id="z5rwsds_38">TextColor</code> hexes to the closest vanilla <code class="code" id="z5rwsds_39">BossBarColor</code> (Red, Blue, Green, Yellow, Purple, White).</p></li></ul></section><section class="chapter"><h3 id="actionbar-actionbar" data-toc="actionbar-actionbar">ActionBar (<code class="code" id="z5rwsds_42">actionbar</code>)</h3><ul class="list _bullet" id="z5rwsds_41"><li class="list__item" id="z5rwsds_43"><p id="z5rwsds_46"><span class="control" id="z5rwsds_47">Text:</span> Renders the <code class="code" id="z5rwsds_48">getCombined()</code> component above the hotbar.</p></li><li class="list__item" id="z5rwsds_44"><p id="z5rwsds_49"><span class="control" id="z5rwsds_51">Progress:</span> Renders based on the player's <code class="code" id="z5rwsds_52">/wit progress &lt;mode&gt;</code> setting.</p><ul class="list _bullet" id="z5rwsds_50"><li class="list__item" id="z5rwsds_53"><p id="z5rwsds_57"><code class="code" id="z5rwsds_58">OFF</code>: Hides progress entirely.</p></li><li class="list__item" id="z5rwsds_54"><p id="z5rwsds_59"><code class="code" id="z5rwsds_60">PERCENT</code>: Appends a percentage (e.g., <code class="code" id="z5rwsds_61">(75%)</code>).</p></li><li class="list__item" id="z5rwsds_55"><p id="z5rwsds_62"><code class="code" id="z5rwsds_63">BAR</code>: Appends a miniature pipe bar (e.g., <code class="code" id="z5rwsds_64">[||||||| ]</code>).</p></li><li class="list__item" id="z5rwsds_56"><p id="z5rwsds_65"><code class="code" id="z5rwsds_66">UNDERLINE</code>: Uses an underlined space trick to simulate a continuous bar.</p></li></ul></li><li class="list__item" id="z5rwsds_45"><p id="z5rwsds_67"><span class="control" id="z5rwsds_68">Color:</span> Applies the provided <code class="code" id="z5rwsds_69">TextColor</code> to the appended progress UI.</p></li></ul></section></section><div class="last-modified">31 May 2026</div><div data-feedback-placeholder="true"></div><div class="navigation-links _bottom"><a href="vanilla-information.html" class="navigation-links__prev">Custom Vanilla Information</a><a href="commands-placeholders.html" class="navigation-links__next">Commands and Permissions</a></div></article><div id="disqus_thread"></div></div></section></main></div><script src="https://resources.jetbrains.com/writerside/apidoc/6.26.0-b913/app.js"></script></body></html>

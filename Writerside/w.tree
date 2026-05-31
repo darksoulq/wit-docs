@@ -4,17 +4,10 @@
 
 <instance-profile id="w"
                  name="WIT"
-                  start-page="api.md">
+                  start-page="custom-handlers.md">
 
-    <toc-element topic="api.md">
-        <toc-element topic="WITPlugin.md"/>
-        <toc-element topic="Block-Handlers.md"/>
-        <toc-element topic="Entity-Handlers.md"/>
-        <toc-element topic="Default-Handlers.md"/>
-        <toc-element topic="Displays.md"/>
-    </toc-element>
-    <toc-element topic="User.md">
-        <toc-element topic="Placeholders.md"/>
-        <toc-element topic="Commands.md"/>
-    </toc-element>
+    <toc-element topic="custom-handlers.md"/>
+    <toc-element topic="vanilla-information.md"/>
+    <toc-element topic="custom-displays.md"/>
+    <toc-element topic="commands-placeholders.md"/>
 </instance-profile>

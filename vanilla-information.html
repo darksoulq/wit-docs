@@ -1,0 +1,62 @@
+<!DOCTYPE html SYSTEM "about:legacy-compat">
+<html lang="en-US" data-preset="contrast" data-primary-color="#DE3358" data-link-color="#647A89" data-resizable-sidebar="true"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta charset="UTF-8"><meta name="robots" content="noindex"><meta name="built-on" content="2026-05-31T15:03:33.5468115"><title>Custom Vanilla Information | WIT</title><script type="application/json" id="virtual-toc-data">[{"id":"injecting-custom-information","level":0,"title":"Injecting Custom Information","anchor":"#injecting-custom-information"},{"id":"example-adding-a-block-suffix","level":0,"title":"Example: Adding a Block Suffix","anchor":"#example-adding-a-block-suffix"},{"id":"example-adding-an-entity-prefix","level":0,"title":"Example: Adding an Entity Prefix","anchor":"#example-adding-an-entity-prefix"},{"id":"reloading-considerations","level":0,"title":"Reloading Considerations","anchor":"#reloading-considerations"}]</script><script type="application/json" id="topic-shortcuts"></script><link href="https://resources.jetbrains.com/writerside/apidoc/6.26.0-b913/app.css" rel="stylesheet"><meta name="msapplication-TileColor" content="#000000"><link rel="apple-touch-icon" sizes="180x180" href="https://jetbrains.com/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="https://jetbrains.com/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="https://jetbrains.com/favicon-16x16.png"><meta name="msapplication-TileImage" content="https://resources.jetbrains.com/storage/ui/favicons/mstile-144x144.png"><meta name="msapplication-square70x70logo" content="https://resources.jetbrains.com/storage/ui/favicons/mstile-70x70.png"><meta name="msapplication-square150x150logo" content="https://resources.jetbrains.com/storage/ui/favicons/mstile-150x150.png"><meta name="msapplication-wide310x150logo" content="https://resources.jetbrains.com/storage/ui/favicons/mstile-310x150.png"><meta name="msapplication-square310x310logo" content="https://resources.jetbrains.com/storage/ui/favicons/mstile-310x310.png"><meta name="image" content=""><!-- Open Graph --><meta property="og:title" content="Custom Vanilla Information | WIT"><meta property="og:description" content=""><meta property="og:image" content=""><meta property="og:site_name" content="WIT Help"><meta property="og:type" content="website"><meta property="og:locale" content="en_US"><meta property="og:url" content="writerside-documentation/vanilla-information.html"><!-- End Open Graph --><!-- Twitter Card --><meta name="twitter:card" content="summary_large_image"><meta name="twitter:site" content=""><meta name="twitter:title" content="Custom Vanilla Information | WIT"><meta name="twitter:description" content=""><meta name="twitter:creator" content=""><meta name="twitter:image:src" content=""><!-- End Twitter Card --><!-- Schema.org WebPage --><script type="application/ld+json">{
+    "@context": "http://schema.org",
+    "@type": "WebPage",
+    "@id": "writerside-documentation/vanilla-information.html#webpage",
+    "url": "writerside-documentation/vanilla-information.html",
+    "name": "Custom Vanilla Information | WIT",
+    "description": "",
+    "image": "",
+    "inLanguage":"en-US"
+}</script><!-- End Schema.org --><!-- Schema.org WebSite --><script type="application/ld+json">{
+    "@type": "WebSite",
+    "@id": "writerside-documentation/#website",
+    "url": "writerside-documentation/",
+    "name": "WIT Help"
+}</script><!-- End Schema.org --></head><body data-id="vanilla-information" data-main-title="Custom Vanilla Information" data-article-props="{&quot;seeAlsoStyle&quot;:&quot;links&quot;}" data-template="article" data-breadcrumbs=""><div class="wrapper"><main class="panel _main"><header class="panel__header"><div class="container"><h3>WIT  Help</h3><div class="panel-trigger"></div></div></header><section class="panel__content"><div class="container"><article class="article" data-shortcut-switcher="inactive"><h1 data-toc="vanilla-information" id="vanilla-information.md">Custom Vanilla Information</h1><p id="mkpm6b_4">We have covered how to completely intercept and take over the display for a block or entity using Custom Handlers. However, if you return <code class="code" id="mkpm6b_10">true</code> in a custom handler, the player loses all default vanilla information (like break progress, crop age, or entity health).</p><p id="mkpm6b_5">If you just want to append a small piece of custom information to the <span class="emphasis" id="mkpm6b_11">existing</span> vanilla display, you can inject functions directly into the default <code class="code" id="mkpm6b_12">MinecraftCompat</code> handler.</p><section class="chapter"><h2 id="injecting-custom-information" data-toc="injecting-custom-information">Injecting Custom Information</h2><p id="mkpm6b_13">The <code class="code" id="mkpm6b_18">MinecraftCompat</code> class maintains lists of functions that run every time a vanilla block or entity is looked at.</p><p id="mkpm6b_14">You can add your own logic to these lists to supply additional <code class="code" id="mkpm6b_19">Component</code> prefixes or suffixes.</p><ul class="list _bullet" id="mkpm6b_15"><li class="list__item" id="mkpm6b_20"><p id="mkpm6b_24"><code class="code" id="mkpm6b_25">MinecraftCompat.getBlockPrefix()</code></p></li><li class="list__item" id="mkpm6b_21"><p id="mkpm6b_26"><code class="code" id="mkpm6b_27">MinecraftCompat.getBlockSuffix()</code></p></li><li class="list__item" id="mkpm6b_22"><p id="mkpm6b_28"><code class="code" id="mkpm6b_29">MinecraftCompat.getEntityPrefix()</code></p></li><li class="list__item" id="mkpm6b_23"><p id="mkpm6b_30"><code class="code" id="mkpm6b_31">MinecraftCompat.getEntitySuffix()</code></p></li></ul><aside class="prompt" data-type="note" data-title="" id="mkpm6b_16"><p>Because the default <code class="code" id="mkpm6b_32">Info</code> object ignores empty text components, you should return <code class="code" id="mkpm6b_33">Component.empty()</code> whenever you do not want your custom information to appear on a specific block or entity.</p></aside></section><section class="chapter"><h2 id="example-adding-a-block-suffix" data-toc="example-adding-a-block-suffix">Example: Adding a Block Suffix</h2><p id="mkpm6b_34">Let's say you have a custom plugin that applies &quot;Radiation&quot; to certain blocks, and you want players to see the radiation level when they look at them, alongside the standard vanilla break progress.</p><div class="code-block" data-lang="java">
+import com.github.darksoulq.wit.compatibility.MinecraftCompat;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.block.Block;
+
+public void registerCustomHandlers() {
+    // Inject a suffix function for blocks
+    MinecraftCompat.getBlockSuffix().add((block) -&gt; {
+        
+        // Example check: Does this block have custom radiation data?
+        int radiationLevel = MyRadiationPlugin.getRadiation(block);
+        
+        if (radiationLevel &gt; 0) {
+            // Return the component to be appended to the UI
+            return Component.text(&quot;Radiation: &quot; + radiationLevel + &quot; rads&quot;, NamedTextColor.GREEN);
+        }
+        
+        // If it doesn't have radiation, return an empty component so nothing is added
+        return Component.empty(); 
+    });
+}
+</div></section><section class="chapter"><h2 id="example-adding-an-entity-prefix" data-toc="example-adding-an-entity-prefix">Example: Adding an Entity Prefix</h2><p id="mkpm6b_37">Similarly, you can inject information before the name of an entity. This is commonly used for showing things like Factions, Guilds, or custom ownership.</p><div class="code-block" data-lang="java">
+import com.github.darksoulq.wit.compatibility.MinecraftCompat;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
+
+public void registerCustomHandlers() {
+    // Inject a prefix function for entities
+    MinecraftCompat.getEntityPrefix().add((entity) -&gt; {
+        
+        // Check if the entity is a player
+        if (entity instanceof Player targetPlayer) {
+            String guildName = MyGuildPlugin.getGuild(targetPlayer);
+            
+            if (guildName != null) {
+                return Component.text(&quot;[&quot; + guildName + &quot;] &quot;, NamedTextColor.AQUA);
+            }
+        }
+        
+        // Not a player, or no guild found
+        return Component.empty();
+    });
+}
+</div></section><section class="chapter"><h2 id="reloading-considerations" data-toc="reloading-considerations">Reloading Considerations</h2><p id="mkpm6b_39">Just like Custom Handlers, the <code class="code" id="mkpm6b_41">MinecraftCompat</code> lists are cleared whenever a server administrator runs <code class="code" id="mkpm6b_42">/wit reload</code> to ensure old configurations and caches are purged.</p><p id="mkpm6b_40">Make sure you are registering your block and entity injection functions inside the <code class="code" id="mkpm6b_43">onWITReload()</code> method of your <code class="code" id="mkpm6b_44">WITPlugin</code> addon so they persist after a reload!</p></section><div class="last-modified">31 May 2026</div><div data-feedback-placeholder="true"></div><div class="navigation-links _bottom"><a href="custom-handlers.html" class="navigation-links__prev">Custom Handlers</a><a href="custom-displays.html" class="navigation-links__next">Custom Displays</a></div></article><div id="disqus_thread"></div></div></section></main></div><script src="https://resources.jetbrains.com/writerside/apidoc/6.26.0-b913/app.js"></script></body></html>

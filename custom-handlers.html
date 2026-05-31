@@ -1,0 +1,97 @@
+<!DOCTYPE html SYSTEM "about:legacy-compat">
+<html lang="en-US" data-preset="contrast" data-primary-color="#DE3358" data-link-color="#647A89" data-resizable-sidebar="true"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta charset="UTF-8"><meta name="robots" content="noindex"><meta name="built-on" content="2026-05-31T15:03:33.5468115"><title>Custom Handlers | WIT</title><script type="application/json" id="virtual-toc-data">[{"id":"addon-lifecycle-reloading","level":0,"title":"Addon Lifecycle (Reloading)","anchor":"#addon-lifecycle-reloading"},{"id":"the-info-object","level":0,"title":"The Info Object","anchor":"#the-info-object"},{"id":"creating-a-custom-handler","level":0,"title":"Creating a Custom Handler","anchor":"#creating-a-custom-handler"}]</script><script type="application/json" id="topic-shortcuts"></script><link href="https://resources.jetbrains.com/writerside/apidoc/6.26.0-b913/app.css" rel="stylesheet"><meta name="msapplication-TileColor" content="#000000"><link rel="apple-touch-icon" sizes="180x180" href="https://jetbrains.com/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="https://jetbrains.com/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="https://jetbrains.com/favicon-16x16.png"><meta name="msapplication-TileImage" content="https://resources.jetbrains.com/storage/ui/favicons/mstile-144x144.png"><meta name="msapplication-square70x70logo" content="https://resources.jetbrains.com/storage/ui/favicons/mstile-70x70.png"><meta name="msapplication-square150x150logo" content="https://resources.jetbrains.com/storage/ui/favicons/mstile-150x150.png"><meta name="msapplication-wide310x150logo" content="https://resources.jetbrains.com/storage/ui/favicons/mstile-310x150.png"><meta name="msapplication-square310x310logo" content="https://resources.jetbrains.com/storage/ui/favicons/mstile-310x310.png"><meta name="image" content=""><!-- Open Graph --><meta property="og:title" content="Custom Handlers | WIT"><meta property="og:description" content=""><meta property="og:image" content=""><meta property="og:site_name" content="WIT Help"><meta property="og:type" content="website"><meta property="og:locale" content="en_US"><meta property="og:url" content="writerside-documentation/custom-handlers.html"><!-- End Open Graph --><!-- Twitter Card --><meta name="twitter:card" content="summary_large_image"><meta name="twitter:site" content=""><meta name="twitter:title" content="Custom Handlers | WIT"><meta name="twitter:description" content=""><meta name="twitter:creator" content=""><meta name="twitter:image:src" content=""><!-- End Twitter Card --><!-- Schema.org WebPage --><script type="application/ld+json">{
+    "@context": "http://schema.org",
+    "@type": "WebPage",
+    "@id": "writerside-documentation/custom-handlers.html#webpage",
+    "url": "writerside-documentation/custom-handlers.html",
+    "name": "Custom Handlers | WIT",
+    "description": "",
+    "image": "",
+    "inLanguage":"en-US"
+}</script><!-- End Schema.org --><!-- Schema.org WebSite --><script type="application/ld+json">{
+    "@type": "WebSite",
+    "@id": "writerside-documentation/#website",
+    "url": "writerside-documentation/",
+    "name": "WIT Help"
+}</script><!-- End Schema.org --></head><body data-id="custom-handlers" data-main-title="Custom Handlers" data-article-props="{&quot;seeAlsoStyle&quot;:&quot;links&quot;}" data-template="article" data-breadcrumbs=""><div class="wrapper"><main class="panel _main"><header class="panel__header"><div class="container"><h3>WIT  Help</h3><div class="panel-trigger"></div></div></header><section class="panel__content"><div class="container"><article class="article" data-shortcut-switcher="inactive"><h1 data-toc="custom-handlers" id="custom-handlers.md">Custom Handlers</h1><p id="z2ebh2w_4">The WIT (What Is That) API allows you to intercept what a player is looking at and provide entirely custom information to their display. This is incredibly useful for custom machines, custom entities, or blocks with unique NBT data.</p><section class="chapter"><h2 id="addon-lifecycle-reloading" data-toc="addon-lifecycle-reloading">Addon Lifecycle (Reloading)</h2><p id="z2ebh2w_8">When a server administrator runs <code class="code" id="z2ebh2w_12">/wit reload</code>, all internal handlers and caches are cleared. If your plugin registers custom handlers, it needs to know when this reload happens so it can re-register them.</p><p id="z2ebh2w_9">To do this, have your main plugin class (or a dedicated manager) implement <code class="code" id="z2ebh2w_13">WITPlugin</code> and register it using <code class="code" id="z2ebh2w_14">API.registerAddon()</code>.</p><div class="code-block" data-lang="java">
+import com.github.darksoulq.wit.api.API;
+import com.github.darksoulq.wit.api.WITPlugin;
+import org.bukkit.plugin.java.JavaPlugin;
+
+public class MyWITAddon extends JavaPlugin implements WITPlugin {
+
+    @Override
+    public void onEnable() {
+        // Register this class to listen for WIT reloads
+        API.registerAddon(this);
+        
+        // Register your handlers for the first time
+        registerCustomHandlers();
+    }
+
+    @Override
+    public void onDisable() {
+        API.unregisterAddon(this);
+    }
+
+    @Override
+    public void onWITReload() {
+        // This is called automatically when /wit reload is executed.
+        // You should re-register your handlers here, as WIT clears its internal lists on reload.
+        registerCustomHandlers();
+    }
+
+    private void registerCustomHandlers() {
+        // We will define this in the next section
+    }
+}
+</div></section><section class="chapter"><h2 id="the-info-object" data-toc="the-info-object">The Info Object</h2><p id="z2ebh2w_15">Whenever you handle a block or entity, you must construct an <code class="code" id="z2ebh2w_19">Info</code> object. This object structures the text that will be sent to the player's screen.</p><ul class="list _bullet" id="z2ebh2w_16"><li class="list__item" id="z2ebh2w_20"><p id="z2ebh2w_23"><code class="code" id="z2ebh2w_24">setName(Component)</code>: The primary name of the target (e.g., &quot;Nuclear Reactor&quot;).</p></li><li class="list__item" id="z2ebh2w_21"><p id="z2ebh2w_25"><code class="code" id="z2ebh2w_26">addPrefix(Component)</code>: Adds information <span class="emphasis" id="z2ebh2w_27">before</span> the name. (Often used for tool requirements or ownership).</p></li><li class="list__item" id="z2ebh2w_22"><p id="z2ebh2w_28"><code class="code" id="z2ebh2w_29">addSuffix(Component)</code>: Adds information <span class="emphasis" id="z2ebh2w_30">after</span> the name. (Often used for states, energy levels, or health).</p></li></ul><p id="z2ebh2w_17">If a prefix or suffix is a <code class="code" id="z2ebh2w_31">TextComponent</code> and is completely empty, the <code class="code" id="z2ebh2w_32">Info</code> object will automatically ignore it, preventing awkward empty spaces in the UI.</p></section><section class="chapter"><h2 id="creating-a-custom-handler" data-toc="creating-a-custom-handler">Creating a Custom Handler</h2><p id="z2ebh2w_33">Handlers are registered as a <code class="code" id="z2ebh2w_38">BiFunction&lt;Block, Player, Boolean&gt;</code> (or <code class="code" id="z2ebh2w_39">Entity</code> instead of <code class="code" id="z2ebh2w_40">Block</code>).</p><p id="z2ebh2w_34">When a player looks at a target, WIT loops through all registered handlers.</p><ol class="list _decimal" id="z2ebh2w_35" type="1"><li class="list__item" id="z2ebh2w_41"><p id="z2ebh2w_43">If your handler returns <code class="code" id="z2ebh2w_44">false</code>, WIT assumes you don't care about this target and moves to the next handler (eventually falling back to the default Minecraft handler).</p></li><li class="list__item" id="z2ebh2w_42"><p id="z2ebh2w_45">If your handler returns <code class="code" id="z2ebh2w_46">true</code>, WIT stops checking immediately. You are taking full responsibility for updating the player's display.</p></li></ol><section class="chapter"><h3 id="example-custom-block-handler" data-toc="example-custom-block-handler">Example: Custom Block Handler</h3><p id="z2ebh2w_47">Here is an example of a handler that intercepts a specific block and displays custom energy information.</p><div class="code-block" data-lang="java">
+import com.github.darksoulq.wit.api.API;
+import com.github.darksoulq.wit.api.Info;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.Material;
+
+public void registerCustomHandlers() {
+    API.addBlockHandler((block, player) -&gt; {
+        // 1. Check if this is the block we want to handle
+        if (block.getType() != Material.FURNACE) {
+            return false; // Not a furnace, let another handler deal with it
+        }
+
+        // 2. We found our block! Build the Info object
+        Info info = new Info();
+        info.setName(Component.text(&quot;Super Smelter&quot;, NamedTextColor.GOLD));
+        info.addSuffix(Component.text(&quot;Speed: 200%&quot;, NamedTextColor.YELLOW));
+
+        // 3. Force the UI update for the player viewing the block
+        // You can use API.updateBar(info, player) for standard updates,
+        // or provide a progress float and TextColor to manipulate the BossBar/ActionBar styling.
+        API.updateBar(info, 1.0f, NamedTextColor.GOLD, player);
+
+        // 4. Return true to tell WIT we successfully handled this block
+        return true; 
+    });
+}
+</div></section><section class="chapter"><h3 id="example-custom-entity-handler" data-toc="example-custom-entity-handler">Example: Custom Entity Handler</h3><p id="z2ebh2w_49">Entity handlers work exactly the same way, but provide an <code class="code" id="z2ebh2w_51">Entity</code> instead of a <code class="code" id="z2ebh2w_52">Block</code>.</p><div class="code-block" data-lang="java">
+import com.github.darksoulq.wit.api.API;
+import com.github.darksoulq.wit.api.Info;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.entity.Cow;
+
+public void registerCustomHandlers() {
+    API.addEntityHandler((entity, player) -&gt; {
+        if (!(entity instanceof Cow cow)) {
+            return false;
+        }
+
+        Info info = new Info();
+        info.setName(Component.text(&quot;Magical Cow&quot;, NamedTextColor.LIGHT_PURPLE));
+        info.addSuffix(Component.text(&quot;Milk Ready: &quot; + !cow.isBaby(), NamedTextColor.WHITE));
+
+        API.updateBar(info, player);
+        return true;
+    });
+}
+</div></section></section><div class="last-modified">31 May 2026</div><div data-feedback-placeholder="true"></div><div class="navigation-links _bottom"><a href="vanilla-information.html" class="navigation-links__next">Custom Vanilla Information</a></div></article><div id="disqus_thread"></div></div></section></main></div><script src="https://resources.jetbrains.com/writerside/apidoc/6.26.0-b913/app.js"></script></body></html>
